@@ -19,9 +19,9 @@ class _HomeBannerCarouselState extends State<HomeBannerCarousel> {
       child: Column(
         children: [
           Container(
-            height: 140,
+            height: 150,
             decoration: BoxDecoration(
-              color: AppColors.primary,
+              color: AppColors.primaryDark,
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
@@ -39,7 +39,7 @@ class _HomeBannerCarouselState extends State<HomeBannerCarousel> {
                 Expanded(
                   flex: 5,
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 12, 14, 12),
+                    padding: const EdgeInsets.fromLTRB(20, 12, 14, 12),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -50,12 +50,13 @@ class _HomeBannerCarouselState extends State<HomeBannerCarousel> {
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
-                            height: 1.2,
+                            height: 1.6,
                           ),
                         ),
                         const SizedBox(height: 8),
                         SizedBox(
                           height: 28,
+                          width: 100,
                           child: ElevatedButton(
                             onPressed: () {},
                             style: ElevatedButton.styleFrom(
@@ -63,7 +64,7 @@ class _HomeBannerCarouselState extends State<HomeBannerCarousel> {
                               foregroundColor: AppColors.primary,
                               padding: const EdgeInsets.symmetric(horizontal: 14),
                               shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(14),
+                                borderRadius: BorderRadius.circular(8),
                               ),
                             ),
                             child: const Text(

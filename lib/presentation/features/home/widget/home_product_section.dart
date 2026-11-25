@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/widgets/product_card.dart';
-import '../../../core/widgets/product_section_list.dart';
+import '../../../core/widgets/product_section.dart';
 
 class HomeProductSection extends StatelessWidget {
   final String title;
@@ -14,25 +14,29 @@ class HomeProductSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-      child: ProductSectionList(
-        title: title,
-        onSeeAllPressed: () {},
-        itemCount: products.length,
-        itemBuilder: (context, index) {
-          final product = products[index];
-          return ProductCard(
+    const cardWidth = 125.0;
+    const spacing = 12.0;
+
+    return ProductSection(
+      title: title,
+      onSeeAllTap: () {},
+      itemCount: products.length,
+      itemSpacing: spacing,
+      itemBuilder: (context, index) {
+        final product = products[index];
+        return SizedBox(
+          width: cardWidth,
+          child: ProductCard(
             title: product['title'],
             price: product['price'],
             rating: product['rating'],
-            imagePath: product['image'],
-            actionIcon: Icons.favorite_border,
-            onActionPressed: () {},
+            image: AssetImage(product['image']),
+            isWished: false,
+            onWishTap: () {},
             onTap: () {},
-          );
-        },
-      ),
+          ),
+        );
+      },
     );
   }
 }

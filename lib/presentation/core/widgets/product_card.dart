@@ -1,131 +1,134 @@
+import 'package:crafty_bay/core/app_colors.dart';
 import 'package:flutter/material.dart';
-import '../../../../core/app_colors.dart';
 
+/// Reusable product tile: image, title, price, rating and wishlist button.
+///
+/// Used by Home, Product list, Wishlist, etc. Receives all data and
+/// callbacks via parameters — no provider access or hardcoded text.
 class ProductCard extends StatelessWidget {
-  final String title;
-  final String price;
-  final double rating;
-  final String imagePath;
-  final IconData actionIcon;
-  final VoidCallback? onActionPressed;
-  final VoidCallback? onTap;
-  final bool isNetworkImage;
-
   const ProductCard({
     super.key,
+    required this.image,
     required this.title,
     required this.price,
     required this.rating,
-    required this.imagePath,
-    this.actionIcon = Icons.favorite_border,
-    this.onActionPressed,
+    this.width,
+    this.isWished = false,
     this.onTap,
-    this.isNetworkImage = false,
+    this.onWishTap,
   });
+
+  final ImageProvider image;
+  final String title;
+  final String price;
+  final double rating;
+
+  /// Fixed width (e.g. in a horizontal list). Leave null inside a grid.
+  final double? width;
+  final bool isWished;
+  final VoidCallback? onTap;
+  final VoidCallback? onWishTap;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
+        width: width,
         decoration: BoxDecoration(
           color: AppColors.cardBackground,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: const [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
+              color: AppColors.border,
               blurRadius: 8,
-              offset: const Offset(0, 2),
+              offset: Offset(0, 2),
             ),
           ],
         ),
         child: Column(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Top Image Container with light teal background
-            Expanded(
+            AspectRatio(
+              aspectRatio: 1.3,
               child: Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: AppColors.primaryLight,
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(16),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(8),
                   ),
                 ),
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(12.0),
-                    child: isNetworkImage
-                        ? Image.network(
-                            imagePath,
-                            fit: BoxFit.contain,
-                          )
-                        : Image.asset(
-                            imagePath,
-                            fit: BoxFit.contain,
-                          ),
-                  ),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Image(image: image, fit: BoxFit.cover),
                 ),
               ),
             ),
-            // Bottom Info Container
             Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.fromLTRB(8, 8, 8, 10),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     title,
-                    maxLines: 1,
+                    maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
                       color: AppColors.textPrimary,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: 6),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
-                        price,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.primary,
+                      Expanded(
+                        // Scales price + rating down so narrow grid cells never overflow.
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Row(
+                            children: [
+                              Text(
+                                price,
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              const SizedBox(width: 10),
+                              const Icon(
+                                Icons.star,
+                                size: 16,
+                                color: AppColors.accent,
+                              ),
+                              const SizedBox(width: 2),
+                              Text(
+                                rating.toString(),
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      Row(
-                        children: [
-                          const Icon(
-                            Icons.star,
-                            size: 14,
-                            color: AppColors.accent,
-                          ),
-                          const SizedBox(width: 2),
-                          Text(
-                            rating.toStringAsFixed(1),
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                        ],
-                      ),
+                      const SizedBox(width: 6),
                       GestureDetector(
-                        onTap: onActionPressed,
+                        onTap: onWishTap,
                         child: Container(
-                          padding: const EdgeInsets.all(4),
+                          padding: const EdgeInsets.all(3),
                           decoration: BoxDecoration(
                             color: AppColors.primary,
-                            borderRadius: BorderRadius.circular(6),
+                            borderRadius: BorderRadius.circular(4),
                           ),
                           child: Icon(
-                            actionIcon,
+                            isWished ? Icons.favorite : Icons.favorite_border,
                             size: 14,
-                            color: Colors.white,
+                            color: AppColors.textOnPrimary,
                           ),
                         ),
                       ),
