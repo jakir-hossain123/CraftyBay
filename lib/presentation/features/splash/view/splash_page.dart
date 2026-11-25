@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:crafty_bay/core/app_assets.dart';
+import 'package:crafty_bay/presentation/features/home/view/home_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/app_colors.dart';
@@ -25,7 +26,7 @@ class _SplashPageState extends State<SplashPage> {
     super.initState();
     _timer = Timer(Duration(seconds: 3), (){   Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => const LoginPage()),
+      MaterialPageRoute(builder: (_) => const HomePage()),
     );
     });
   }

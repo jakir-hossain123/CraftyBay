@@ -1,9 +1,8 @@
-import 'package:crafty_bay/core/app_assets.dart';
 import 'package:crafty_bay/core/app_colors.dart';
 import 'package:crafty_bay/core/app_strings.dart';
 import 'package:crafty_bay/presentation/features/splash/view/splash_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 void main() {
   runApp(const CraftyBay());
@@ -18,19 +17,18 @@ class CraftyBay extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: AppStrings.appName,
       theme: ThemeData(
-
         scaffoldBackgroundColor: AppColors.background,
-
-        appBarTheme: AppBarTheme(
+        textTheme: GoogleFonts.poppinsTextTheme(
+          ThemeData.light().textTheme,
+        ),
+        appBarTheme: const AppBarTheme(
           backgroundColor: AppColors.background,
           foregroundColor: AppColors.textPrimary,
-            elevation: 0,
-
-            iconTheme: IconThemeData(
-                color: AppColors.textPrimary
+          elevation: 0,
+          iconTheme: IconThemeData(
+            color: AppColors.textPrimary,
+          ),
         ),
-        ),
-
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
@@ -62,13 +60,12 @@ class CraftyBay extends StatelessWidget {
             borderSide: const BorderSide(color: AppColors.error),
           ),
         ),
-        textSelectionTheme: TextSelectionThemeData(
+        textSelectionTheme: const TextSelectionThemeData(
           cursorColor: Colors.black,
-          selectionHandleColor: Colors.black
-        )
+          selectionHandleColor: Colors.black,
+        ),
       ),
       home: const SplashPage(),
-
     );
   }
 }
