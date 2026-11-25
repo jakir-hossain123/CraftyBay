@@ -31,6 +31,7 @@ class _CreateReviewPageState extends State<CreateReviewPage> {
 
   void _onSubmit() {
     if (!_formKey.currentState!.validate()) return;
+    Navigator.pop(context);
   }
 
   @override
@@ -40,7 +41,15 @@ class _CreateReviewPageState extends State<CreateReviewPage> {
       appBar: AppBar(
         title: const Text(
           AppStrings.createReview,
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.w500,
+            color: AppColors.textPrimary,
+          ),
+        ),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new, size: 18),
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: SafeArea(
@@ -58,7 +67,7 @@ class _CreateReviewPageState extends State<CreateReviewPage> {
                     hintText: AppStrings.firstName,
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: _lastNameController,
                   textInputAction: TextInputAction.next,
@@ -67,10 +76,10 @@ class _CreateReviewPageState extends State<CreateReviewPage> {
                     hintText: AppStrings.lastName,
                   ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: _reviewController,
-                  maxLines: 8,
+                  maxLines: 7,
                   textInputAction: TextInputAction.newline,
                   validator: _validateRequired,
                   decoration: const InputDecoration(
@@ -78,7 +87,7 @@ class _CreateReviewPageState extends State<CreateReviewPage> {
                     alignLabelWithHint: true,
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: _onSubmit,
                   child: const Text(AppStrings.submit),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/app_strings.dart';
 import '../../../core/widgets/category_card.dart';
+import '../../../core/widgets/category_grid_page.dart';
 import '../../../core/widgets/product_section.dart';
 
 class HomeCategorySection extends StatelessWidget {
@@ -15,7 +16,25 @@ class HomeCategorySection extends StatelessWidget {
   Widget build(BuildContext context) {
     return ProductSection(
       title: AppStrings.allCategories,
-      onSeeAllTap: () {},
+      onSeeAllTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => CategoryGridPage(
+              title: AppStrings.allCategories,
+              itemCount: categories.length * 4, // expanded grid for categories
+              itemBuilder: (context, index) {
+                final cat = categories[index % categories.length];
+                return CategoryCard(
+                  title: cat['title'],
+                  icon: cat['icon'],
+                  onTap: () {},
+                );
+              },
+            ),
+          ),
+        );
+      },
       itemCount: categories.length,
       itemSpacing: 12.0,
       itemBuilder: (context, index) {

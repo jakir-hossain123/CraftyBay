@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/widgets/product_card.dart';
+import '../../../core/widgets/product_grid_page.dart';
 import '../../../core/widgets/product_section.dart';
 
 class HomeProductSection extends StatelessWidget {
@@ -19,7 +20,29 @@ class HomeProductSection extends StatelessWidget {
 
     return ProductSection(
       title: title,
-      onSeeAllTap: () {},
+      onSeeAllTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ProductGridPage(
+              title: title,
+              itemCount: products.length * 3,
+              itemBuilder: (context, index) {
+                final product = products[index % products.length];
+                return ProductCard(
+                  title: product['title'],
+                  price: product['price'],
+                  rating: product['rating'],
+                  image: AssetImage(product['image']),
+                  isWished: false,
+                  onWishTap: () {},
+                  onTap: () {},
+                );
+              },
+            ),
+          ),
+        );
+      },
       itemCount: products.length,
       itemSpacing: spacing,
       itemBuilder: (context, index) {

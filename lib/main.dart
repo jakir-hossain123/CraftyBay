@@ -1,5 +1,6 @@
 import 'package:crafty_bay/core/app_colors.dart';
 import 'package:crafty_bay/core/app_strings.dart';
+import 'package:crafty_bay/presentation/features/cart/view/cart_page.dart';
 import 'package:crafty_bay/presentation/features/splash/view/splash_page.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -33,7 +34,8 @@ class CraftyBay extends StatelessWidget {
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary,
             foregroundColor: AppColors.textOnPrimary,
-            minimumSize: const Size.fromHeight(48),
+            minimumSize: const  Size(0, 44),
+
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),
             ),
@@ -65,7 +67,7 @@ class CraftyBay extends StatelessWidget {
           selectionHandleColor: Colors.black,
         ),
       ),
-      home: const SplashPage(),
+      home: const CartPage(),
     );
   }
 }
