@@ -67,7 +67,7 @@ class CraftyBay extends StatelessWidget {
           selectionHandleColor: Colors.black,
         ),
       ),
-      home: const CartPage(),
+      home: const SplashPage(),
     );
   }
 }

@@ -36,7 +36,6 @@ class HomeProductSection extends StatelessWidget {
                   image: AssetImage(product['image']),
                   isWished: false,
                   onWishTap: () {},
-                  onTap: () {},
                 );
               },
             ),
@@ -56,7 +55,6 @@ class HomeProductSection extends StatelessWidget {
             image: AssetImage(product['image']),
             isWished: false,
             onWishTap: () {},
-            onTap: () {},
           ),
         );
       },

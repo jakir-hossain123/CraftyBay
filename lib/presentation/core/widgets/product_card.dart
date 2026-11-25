@@ -1,5 +1,6 @@
 import 'package:crafty_bay/core/app_colors.dart';
 import 'package:flutter/material.dart';
+import '../../features/product_details/view/product_details_page.dart';
 
 /// Reusable product tile: image, title, price, rating and wishlist button.
 ///
@@ -32,7 +33,12 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: onTap ?? () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ProductDetailsPage()),
+        );
+      },
       child: Container(
         width: width,
         decoration: BoxDecoration(

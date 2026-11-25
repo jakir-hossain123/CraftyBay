@@ -16,7 +16,7 @@ class ProductGridPage extends StatelessWidget {
     required this.itemBuilder,
     this.crossAxisCount = 3,
     this.padding = const EdgeInsets.all(16.0),
-    this.childAspectRatio = 0.7,
+    this.childAspectRatio = 0.65,
   });
 
   @override

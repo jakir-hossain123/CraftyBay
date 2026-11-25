@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:crafty_bay/core/app_assets.dart';
-import 'package:crafty_bay/presentation/features/cart/view/cart_page.dart';
+import 'package:crafty_bay/presentation/features/main_nav/view/main_nav_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/app_colors.dart';
@@ -23,7 +23,7 @@ class _SplashPageState extends State<SplashPage> {
     _timer = Timer(const Duration(seconds: 3), () {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const CartPage()),
+        MaterialPageRoute(builder: (_) => const MainNavPage()),
       );
     });
   }

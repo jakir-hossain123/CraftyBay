@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../../core/app_assets.dart';
 import '../../../../core/app_colors.dart';
 import '../../../core/widgets/cart_bottom_bar.dart';
 import '../../../core/widgets/cart_item_card.dart';
+import '../model/cart_manager.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -12,19 +12,29 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
-  final List<Map<String, dynamic>> _cartItems = List.generate(
-    4,
-    (index) => {
-      'title': 'New Year Special Shoe',
-      'subtitle': 'Color: Red, Size: X',
-      'price': '\$100',
-      'quantity': 1,
-      'image': AppAssets.shoe,
-    },
-  );
+  final CartManager _cartManager = CartManager();
+
+  @override
+  void initState() {
+    super.initState();
+    _cartManager.addListener(_onCartChanged);
+  }
+
+  @override
+  void dispose() {
+    _cartManager.removeListener(_onCartChanged);
+    super.dispose();
+  }
+
+  void _onCartChanged() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
+    final items = _cartManager.items;
+    final totalFormatted = '\$${_cartManager.totalPrice.toStringAsFixed(2)}';
+
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -41,40 +51,45 @@ class _CartPageState extends State<CartPage> {
           onPressed: () => Navigator.pop(context),
         ),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: _cartItems.length,
-        itemBuilder: (context, index) {
-          final item = _cartItems[index];
-          return CartItemCard(
-            image: AssetImage(item['image']),
-            title: item['title'],
-            subtitle: item['subtitle'],
-            price: item['price'],
-            quantity: item['quantity'],
-            onIncrement: () {
-              setState(() {
-                item['quantity']++;
-              });
-            },
-            onDecrement: () {
-              setState(() {
-                if (item['quantity'] > 1) item['quantity']--;
-              });
-            },
-            onDelete: () {
-              setState(() {
-                _cartItems.removeAt(index);
-              });
-            },
-          );
-        },
-      ),
+      body: items.isEmpty
+          ? const Center(
+              child: Text(
+                'Your cart is empty',
+                style: TextStyle(fontSize: 16, color: AppColors.textSecondary),
+              ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(16),
+              itemCount: items.length,
+              itemBuilder: (context, index) {
+                final item = items[index];
+                return CartItemCard(
+                  image: AssetImage(item.image),
+                  title: item.title,
+                  subtitle: item.subtitle,
+                  price: item.priceString,
+                  quantity: item.quantity,
+                  onIncrement: () => _cartManager.incrementQuantity(index),
+                  onDecrement: () => _cartManager.decrementQuantity(index),
+                  onDelete: () => _cartManager.removeItem(index),
+                );
+              },
+            ),
       bottomNavigationBar: CartBottomBar(
         label: 'Total Price',
-        price: '\$100,000.00',
+        price: totalFormatted,
         buttonText: 'Checkout',
-        onButtonPressed: () {},
+        onButtonPressed: () {
+          if (items.isEmpty) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Your cart is empty!')),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text('Proceeding to Checkout...')),
+            );
+          }
+        },
       ),
     );
   }
