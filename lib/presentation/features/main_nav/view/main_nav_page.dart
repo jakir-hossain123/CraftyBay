@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/app_colors.dart';
 import '../../../../core/app_strings.dart';
 import '../../cart/view/cart_page.dart';
 import '../../home/view/home_page.dart';
+import '../../home/viewmodel/home_provider.dart';
 import '../../wishlist/view/wishlist_page.dart';
 import '../../../core/widgets/category_card.dart';
 import '../../../core/widgets/category_grid_page.dart';
@@ -68,15 +70,34 @@ class CategoriesTabPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final homeProvider = context.watch<HomeProvider>();
+    final categories = homeProvider.categories;
+
     return CategoryGridPage(
       title: AppStrings.allCategories,
-      itemCount: 8,
+      itemCount: categories.isNotEmpty ? categories.length : 4,
       itemBuilder: (context, index) {
-        return CategoryCard(
-          title: 'Electronics',
-          icon: Icons.tv,
-          onTap: () {},
-        );
+        if (categories.isNotEmpty) {
+          final cat = categories[index];
+          return CategoryCard(
+            title: cat.title,
+            imageUrl: cat.icon,
+            onTap: () {},
+          );
+        } else {
+          final defaults = [
+            {'title': 'Electronics', 'icon': Icons.tv},
+            {'title': 'Food', 'icon': Icons.fastfood},
+            {'title': 'Fashion', 'icon': Icons.diamond},
+            {'title': 'Furniture', 'icon': Icons.weekend},
+          ];
+          final cat = defaults[index % defaults.length];
+          return CategoryCard(
+            title: cat['title'] as String,
+            icon: cat['icon'] as IconData,
+            onTap: () {},
+          );
+        }
       },
     );
   }
