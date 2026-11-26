@@ -3,10 +3,14 @@ import '../../../../core/app_assets.dart';
 import '../../../../data/models/brand_model.dart';
 import '../../../../data/models/category_model.dart';
 import '../../../../data/models/slide_model.dart';
-import '../service/home_service.dart';
+import '../../../../data/services/brand_service.dart';
+import '../../../../data/services/category_service.dart';
+import '../../../../data/services/slide_service.dart';
 
 class HomeProvider extends ChangeNotifier {
-  final HomeService _homeService = HomeService();
+  final BrandService _brandService = BrandService();
+  final CategoryService _categoryService = CategoryService();
+  final SlideService _slideService = SlideService();
 
   bool isLoading = false;
   String? errorMessage;
@@ -22,7 +26,6 @@ class HomeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Fallback dummy products
   final List<Map<String, dynamic>> products = [
     {
       'title': 'New Year Special Shoe 30',
@@ -51,9 +54,9 @@ class HomeProvider extends ChangeNotifier {
 
     try {
       final results = await Future.wait([
-        _homeService.getSlides(),
-        _homeService.getBrands(),
-        _homeService.getCategories(),
+        _slideService.getSlides(),
+        _brandService.getBrands(),
+        _categoryService.getCategories(),
       ]);
 
       slides = results[0] as List<SlideModel>;
