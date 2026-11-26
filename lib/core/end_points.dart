@@ -23,7 +23,10 @@ class EndPoints {
   // --- Home ---
   static String get slides => '$baseUrl/slides';
   static String get brands => '$baseUrl/brands';
+  static String brandById(String id) => '$brands/${Uri.encodeComponent(id)}';
   static String get categories => '$baseUrl/categories';
+  static String categoryById(String id) =>
+      '$categories/${Uri.encodeComponent(id)}';
 
   // --- Products ---
   static String get products => '$baseUrl/products';

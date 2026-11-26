@@ -3,14 +3,16 @@ import '../../../../core/app_colors.dart';
 import '../../reviews/view/reviews_page.dart';
 
 class ProductHeaderSection extends StatelessWidget {
+  final String title;
   final int quantity;
-  final VoidCallback onIncrement;
+  final VoidCallback? onIncrement;
   final VoidCallback onDecrement;
   final bool isWished;
   final VoidCallback onWishlistTap;
 
   const ProductHeaderSection({
     super.key,
+    required this.title,
     required this.quantity,
     required this.onIncrement,
     required this.onDecrement,
@@ -26,10 +28,10 @@ class ProductHeaderSection extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Expanded(
+            Expanded(
               child: Text(
-                'Happy New Year Special Deal\nSave 30%',
-                style: TextStyle(
+                title,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
@@ -40,10 +42,7 @@ class ProductHeaderSection extends StatelessWidget {
             const SizedBox(width: 12),
             Row(
               children: [
-                _buildStepperButton(
-                  icon: Icons.remove,
-                  onPressed: onDecrement,
-                ),
+                _buildStepperButton(icon: Icons.remove, onPressed: onDecrement),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Text(

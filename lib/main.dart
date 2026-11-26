@@ -2,7 +2,11 @@ import 'package:crafty_bay/core/app_colors.dart';
 import 'package:crafty_bay/core/app_strings.dart';
 import 'package:crafty_bay/presentation/features/auth/viewmodel/auth_provider.dart';
 import 'package:crafty_bay/presentation/features/cart/viewmodel/cart_provider.dart';
+import 'package:crafty_bay/presentation/features/categories/viewmodel/category_provider.dart';
+import 'package:crafty_bay/presentation/features/home/viewmodel/brand_provider.dart';
 import 'package:crafty_bay/presentation/features/home/viewmodel/home_provider.dart';
+import 'package:crafty_bay/presentation/features/home/viewmodel/slide_provider.dart';
+import 'package:crafty_bay/presentation/features/products/viewmodel/product_provider.dart';
 import 'package:crafty_bay/presentation/features/reviews/viewmodel/review_provider.dart';
 import 'package:crafty_bay/presentation/features/splash/view/splash_page.dart';
 import 'package:crafty_bay/presentation/features/wishlist/viewmodel/wishlist_provider.dart';
@@ -28,6 +32,10 @@ class CraftyBay extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => WishlistProvider()),
         ChangeNotifierProvider(create: (_) => ReviewProvider()),
         ChangeNotifierProvider(create: (_) => HomeProvider()),
+        ChangeNotifierProvider(create: (_) => BrandProvider()),
+        ChangeNotifierProvider(create: (_) => CategoryProvider()),
+        ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => SlideProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: MaterialApp(
@@ -35,16 +43,12 @@ class CraftyBay extends StatelessWidget {
         title: AppStrings.appName,
         theme: ThemeData(
           scaffoldBackgroundColor: AppColors.background,
-          textTheme: GoogleFonts.poppinsTextTheme(
-            ThemeData.light().textTheme,
-          ),
+          textTheme: GoogleFonts.poppinsTextTheme(ThemeData.light().textTheme),
           appBarTheme: const AppBarTheme(
             backgroundColor: AppColors.background,
             foregroundColor: AppColors.textPrimary,
             elevation: 0,
-            iconTheme: IconThemeData(
-              color: AppColors.textPrimary,
-            ),
+            iconTheme: IconThemeData(color: AppColors.textPrimary),
           ),
           elevatedButtonTheme: ElevatedButtonThemeData(
             style: ElevatedButton.styleFrom(

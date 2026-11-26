@@ -21,6 +21,7 @@ class WishlistPage extends StatelessWidget {
           title: item.title,
           price: item.price,
           rating: item.rating,
+          productId: item.id,
           image: AssetImage(item.image),
           isWished: true,
           onWishTap: () {

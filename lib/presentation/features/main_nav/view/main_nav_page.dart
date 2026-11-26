@@ -3,8 +3,8 @@ import 'package:provider/provider.dart';
 import '../../../../core/app_colors.dart';
 import '../../../../core/app_strings.dart';
 import '../../cart/view/cart_page.dart';
+import '../../categories/viewmodel/category_provider.dart';
 import '../../home/view/home_page.dart';
-import '../../home/viewmodel/home_provider.dart';
 import '../../wishlist/view/wishlist_page.dart';
 import '../../../core/widgets/category_card.dart';
 import '../../../core/widgets/category_grid_page.dart';
@@ -70,8 +70,8 @@ class CategoriesTabPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final homeProvider = context.watch<HomeProvider>();
-    final categories = homeProvider.categories;
+    final categoryProvider = context.watch<CategoryProvider>();
+    final categories = categoryProvider.categories;
 
     return CategoryGridPage(
       title: AppStrings.allCategories,

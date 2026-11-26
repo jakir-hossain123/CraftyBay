@@ -13,6 +13,7 @@ class ProductCard extends StatelessWidget {
     required this.title,
     required this.price,
     required this.rating,
+    this.productId,
     this.width,
     this.isWished = false,
     this.onTap,
@@ -23,6 +24,7 @@ class ProductCard extends StatelessWidget {
   final String title;
   final String price;
   final double rating;
+  final String? productId;
 
   /// Fixed width (e.g. in a horizontal list). Leave null inside a grid.
   final double? width;
@@ -32,13 +34,21 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final canOpenDetails = productId != null && productId!.isNotEmpty;
+
     return GestureDetector(
-      onTap: onTap ?? () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const ProductDetailsPage()),
-        );
-      },
+      onTap:
+          onTap ??
+          (canOpenDetails
+              ? () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ProductDetailsPage(productId: productId),
+                    ),
+                  );
+                }
+              : null),
       child: Container(
         width: width,
         decoration: BoxDecoration(
@@ -57,7 +67,7 @@ class ProductCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AspectRatio(
-              aspectRatio: 1.3,
+              aspectRatio: 1.4,
               child: Container(
                 decoration: BoxDecoration(
                   color: AppColors.primaryLight,

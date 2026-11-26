@@ -4,14 +4,12 @@ import '../../../../data/models/category_model.dart';
 import '../../../core/widgets/category_card.dart';
 import '../../../core/widgets/category_grid_page.dart';
 import '../../../core/widgets/product_section.dart';
+import '../../categories/view/category_details_page.dart';
 
 class HomeCategorySection extends StatelessWidget {
   final List<CategoryModel> categories;
 
-  const HomeCategorySection({
-    super.key,
-    required this.categories,
-  });
+  const HomeCategorySection({super.key, required this.categories});
 
   @override
   Widget build(BuildContext context) {
@@ -35,7 +33,9 @@ class HomeCategorySection extends StatelessWidget {
               itemCount: displayCategories.length,
               itemBuilder: (context, index) {
                 final cat = displayCategories[index];
-                final title = cat is CategoryModel ? cat.title : (cat as Map)['title'];
+                final title = cat is CategoryModel
+                    ? cat.title
+                    : (cat as Map)['title'];
                 final iconUrl = cat is CategoryModel ? cat.icon : null;
                 final iconData = cat is Map ? cat['icon'] : Icons.category;
 
@@ -43,7 +43,9 @@ class HomeCategorySection extends StatelessWidget {
                   title: title,
                   icon: iconData is IconData ? iconData : Icons.category,
                   imageUrl: iconUrl,
-                  onTap: () {},
+                  onTap: cat is CategoryModel
+                      ? () => _openCategoryDetails(context, cat)
+                      : null,
                 );
               },
             ),
@@ -64,10 +66,21 @@ class HomeCategorySection extends StatelessWidget {
             title: title,
             icon: iconData is IconData ? iconData : Icons.category,
             imageUrl: iconUrl,
-            onTap: () {},
+            onTap: cat is CategoryModel
+                ? () => _openCategoryDetails(context, cat)
+                : null,
           ),
         );
       },
+    );
+  }
+
+  void _openCategoryDetails(BuildContext context, CategoryModel category) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CategoryDetailsPage(categoryId: category.id),
+      ),
     );
   }
 }

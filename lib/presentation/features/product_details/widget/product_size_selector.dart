@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import '../../../../core/app_colors.dart';
 
 class ProductSizeSelector extends StatelessWidget {
+  final List<String> options;
   final int selectedIndex;
   final ValueChanged<int> onSizeSelected;
 
   const ProductSizeSelector({
     super.key,
+    required this.options,
     required this.selectedIndex,
     required this.onSizeSelected,
   });
-
-  static const List<String> sizes = ['X', 'XL', '2L', 'X'];
 
   @override
   Widget build(BuildContext context) {
@@ -27,13 +27,14 @@ class ProductSizeSelector extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        Row(
-          children: List.generate(sizes.length, (index) {
+        Wrap(
+          spacing: 12,
+          runSpacing: 8,
+          children: List.generate(options.length, (index) {
             final isSelected = index == selectedIndex;
             return GestureDetector(
               onTap: () => onSizeSelected(index),
               child: Container(
-                margin: const EdgeInsets.only(right: 12),
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
@@ -45,7 +46,7 @@ class ProductSizeSelector extends StatelessWidget {
                 ),
                 child: Center(
                   child: Text(
-                    sizes[index],
+                    options[index],
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
