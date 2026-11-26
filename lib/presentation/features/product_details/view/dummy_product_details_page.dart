@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../../core/app_colors.dart';
+import '../../../core/auth_navigation.dart';
 import '../../../core/widgets/cart_bottom_bar.dart';
-import '../../cart/model/cart_manager.dart';
 import '../widget/product_color_selector.dart';
 import '../widget/product_description_section.dart';
 import '../widget/product_header_section.dart';
@@ -34,10 +34,6 @@ class _DummyProductDetailsPageState extends State<DummyProductDetailsPage> {
   int _selectedColorIndex = 0;
   int _selectedSizeIndex = 0;
   int _quantity = 1;
-  bool _isWished = false;
-
-  double get _numericPrice =>
-      double.tryParse(widget.price.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 0;
 
   @override
   Widget build(BuildContext context) {
@@ -73,8 +69,8 @@ class _DummyProductDetailsPageState extends State<DummyProductDetailsPage> {
                         setState(() => _quantity--);
                       }
                     },
-                    isWished: _isWished,
-                    onWishlistTap: () => setState(() => _isWished = !_isWished),
+                    isWished: false,
+                    onWishlistTap: _toggleWishlist,
                   ),
                   const SizedBox(height: 12),
                   Text(
@@ -112,20 +108,29 @@ class _DummyProductDetailsPageState extends State<DummyProductDetailsPage> {
         label: 'Price',
         price: widget.price,
         buttonText: 'Add To Cart',
-        onButtonPressed: () {
-          CartManager().addItem(
-            title: widget.title,
-            subtitle:
-                'Color: ${_colors[_selectedColorIndex]}, Size: ${_sizes[_selectedSizeIndex]}',
-            priceString: widget.price,
-            price: _numericPrice,
-            quantity: _quantity,
-            image: widget.image,
-          );
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Added to cart successfully!')),
-          );
-        },
+        onButtonPressed: _addToCart,
+      ),
+    );
+  }
+
+  Future<void> _toggleWishlist() async {
+    if (!await AuthNavigation.requireLogin(context)) return;
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'This demo product is not available in the wishlist API.',
+        ),
+      ),
+    );
+  }
+
+  Future<void> _addToCart() async {
+    if (!await AuthNavigation.requireLogin(context)) return;
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('This demo product is not available in the cart API.'),
       ),
     );
   }

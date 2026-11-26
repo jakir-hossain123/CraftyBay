@@ -6,7 +6,9 @@ import '../../../../../core/app_colors.dart';
 import '../../../../../core/app_strings.dart';
 
 class LoginHeader extends StatelessWidget {
-  const LoginHeader({super.key});
+  final bool isRegistering;
+
+  const LoginHeader({super.key, this.isRegistering = false});
 
   @override
   Widget build(BuildContext context) {
@@ -14,17 +16,19 @@ class LoginHeader extends StatelessWidget {
       children: [
         SvgPicture.asset(AppAssets.logo, width: 100),
         const SizedBox(height: 24),
-        const Text(
-          AppStrings.welcomeBack,
-          style: TextStyle(
+        Text(
+          isRegistering ? 'Create Account' : AppStrings.welcomeBack,
+          style: const TextStyle(
             fontSize: 26,
             fontWeight: FontWeight.w700,
             color: AppColors.textPrimary,
           ),
         ),
         const SizedBox(height: 6),
-        const Text(
-          AppStrings.enterEmailPrompt,
+        Text(
+          isRegistering
+              ? 'Enter your details to create an account'
+              : '${AppStrings.enterEmailPrompt} and password',
           style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
         ),
       ],

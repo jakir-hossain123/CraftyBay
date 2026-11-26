@@ -1,6 +1,9 @@
 import 'package:crafty_bay/core/app_colors.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../features/wishlist/viewmodel/wishlist_provider.dart';
 import '../../features/product_details/view/product_details_page.dart';
+import '../auth_navigation.dart';
 
 /// Reusable product tile: image, title, price, rating and wishlist button.
 ///
@@ -16,6 +19,7 @@ class ProductCard extends StatelessWidget {
     this.productId,
     this.width,
     this.isWished = false,
+    this.allowLocalWishlist = false,
     this.onTap,
     this.onWishTap,
   });
@@ -29,12 +33,21 @@ class ProductCard extends StatelessWidget {
   /// Fixed width (e.g. in a horizontal list). Leave null inside a grid.
   final double? width;
   final bool isWished;
+  final bool allowLocalWishlist;
   final VoidCallback? onTap;
   final VoidCallback? onWishTap;
 
   @override
   Widget build(BuildContext context) {
     final canOpenDetails = productId != null && productId!.isNotEmpty;
+    final wishlistProvider = context.watch<WishlistProvider>();
+    final wishlistKey = canOpenDetails
+        ? productId!
+        : WishlistProvider.localProductId(title);
+    final productIsWished =
+        isWished ||
+        ((canOpenDetails || allowLocalWishlist) &&
+            wishlistProvider.isWished(wishlistKey));
 
     return GestureDetector(
       onTap:
@@ -134,7 +147,11 @@ class ProductCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 6),
                       GestureDetector(
-                        onTap: onWishTap,
+                        onTap:
+                            onWishTap ??
+                            (canOpenDetails || allowLocalWishlist
+                                ? () => _toggleWishlist(context)
+                                : null),
                         child: Container(
                           padding: const EdgeInsets.all(3),
                           decoration: BoxDecoration(
@@ -142,7 +159,9 @@ class ProductCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: Icon(
-                            isWished ? Icons.favorite : Icons.favorite_border,
+                            productIsWished
+                                ? Icons.favorite
+                                : Icons.favorite_border,
                             size: 14,
                             color: AppColors.textOnPrimary,
                           ),
@@ -157,5 +176,39 @@ class ProductCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _toggleWishlist(BuildContext context) async {
+    if (!await AuthNavigation.requireLogin(context)) return;
+    if (!context.mounted) return;
+    if (productId == null || productId!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'This demo product is not available in the wishlist API.',
+          ),
+        ),
+      );
+      return;
+    }
+    final provider = context.read<WishlistProvider>();
+    if (provider.isMutating) return;
+    final success = await context.read<WishlistProvider>().toggleProduct(
+      productId: productId ?? '',
+      title: title,
+      price: price,
+      rating: rating,
+      image: image is NetworkImage
+          ? (image as NetworkImage).url
+          : image is AssetImage
+          ? (image as AssetImage).assetName
+          : '',
+    );
+    if (!success && context.mounted) {
+      final message = context.read<WishlistProvider>().errorMessage;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message ?? 'Wishlist request failed.')),
+      );
+    }
   }
 }

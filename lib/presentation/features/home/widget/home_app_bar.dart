@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/app_assets.dart';
 import '../../../../core/app_colors.dart';
+import '../../auth/auth_redirect.dart';
+import '../../auth/viewmodel/auth_provider.dart';
+import '../../cart/viewmodel/cart_provider.dart';
+import '../../wishlist/viewmodel/wishlist_provider.dart';
 
 class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
   const HomeAppBar({super.key});
@@ -13,10 +18,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          SvgPicture.asset(
-            AppAssets.logoNav,
-            height: 28,
-          ),
+          SvgPicture.asset(AppAssets.logoNav, height: 28),
           Row(
             children: [
               _buildActionIcon(Icons.person_outline, () {}),
@@ -24,6 +26,22 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
               _buildActionIcon(Icons.phone_outlined, () {}),
               const SizedBox(width: 8),
               _buildActionIcon(Icons.notifications_none, () {}),
+              const SizedBox(width: 8),
+              IconButton(
+                tooltip: 'Logout (test)',
+                onPressed: () async {
+                  final authProvider = context.read<AuthProvider>();
+                  final cartProvider = context.read<CartProvider>();
+                  final wishlistProvider = context.read<WishlistProvider>();
+                  await authProvider.logout();
+                  cartProvider.clearRemoteItems();
+                  wishlistProvider.clearRemoteItems();
+                  if (!context.mounted) return;
+                  AuthRedirect.reset();
+                  AuthRedirect.toLogin();
+                },
+                icon: const Icon(Icons.logout, color: AppColors.icon),
+              ),
             ],
           ),
         ],
@@ -42,11 +60,7 @@ class HomeAppBar extends StatelessWidget implements PreferredSizeWidget {
           color: AppColors.surface,
           shape: BoxShape.circle,
         ),
-        child: Icon(
-          icon,
-          size: 20,
-          color: AppColors.icon,
-        ),
+        child: Icon(icon, size: 20, color: AppColors.icon),
       ),
     );
   }

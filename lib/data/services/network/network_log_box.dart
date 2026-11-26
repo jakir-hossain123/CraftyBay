@@ -17,7 +17,12 @@ class NetworkLogBox {
   static String request(String method, Uri uri, Map<String, String>? headers) {
     final headerLines = (headers == null || headers.isEmpty)
         ? ['  (none)']
-        : headers.entries.map((e) => '  ${e.key}: ${e.value}').toList();
+        : headers.entries
+              .map(
+                (e) =>
+                    '  ${e.key}: ${_isSensitiveHeader(e.key) ? '[REDACTED]' : e.value}',
+              )
+              .toList();
 
     return [
       _section('╣ Request ║ $method', ['  $uri']),
@@ -33,16 +38,30 @@ class NetworkLogBox {
     required int elapsedMs,
     required String body,
   }) {
-    final status = reason == null || reason.isEmpty ? '$statusCode' : '$statusCode $reason';
+    final status = reason == null || reason.isEmpty
+        ? '$statusCode'
+        : '$statusCode $reason';
 
     return [
-      _section('╣ Response ║ $method ║ Status: $status ║ Time: $elapsedMs ms', ['  $uri']),
+      _section('╣ Response ║ $method ║ Status: $status ║ Time: $elapsedMs ms', [
+        '  $uri',
+      ]),
       _section(' Body', ['', ..._bodyLines(body)]),
     ].join('\n');
   }
 
   static String error(String method, Uri uri, String message, int elapsedMs) {
-    return _section('╣ Error ║ $method ║ Time: $elapsedMs ms', ['  $uri', '  $message']);
+    return _section('╣ Error ║ $method ║ Time: $elapsedMs ms', [
+      '  $uri',
+      '  $message',
+    ]);
+  }
+
+  static bool _isSensitiveHeader(String key) {
+    final normalized = key.toLowerCase();
+    return normalized == 'authorization' ||
+        normalized == 'token' ||
+        normalized == 'cookie';
   }
 
   static List<String> _bodyLines(String body) {
@@ -55,10 +74,17 @@ class NetworkLogBox {
     final lines = text.split('\n').map((l) => '   $l').toList();
     if (lines.length <= _maxBodyLines) return lines;
 
-    return [...lines.take(_maxBodyLines), '   ... (${lines.length - _maxBodyLines} more lines)'];
+    return [
+      ...lines.take(_maxBodyLines),
+      '   ... (${lines.length - _maxBodyLines} more lines)',
+    ];
   }
 
   static String _section(String title, List<String> lines) {
-    return ['╔$title', ...lines.map((l) => '║$l'), '╚${'═' * _width}'].join('\n');
+    return [
+      '╔$title',
+      ...lines.map((l) => '║$l'),
+      '╚${'═' * _width}',
+    ].join('\n');
   }
 }

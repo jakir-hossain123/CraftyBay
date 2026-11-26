@@ -1,92 +1,163 @@
 import 'package:flutter/material.dart';
-import '../../../../core/app_assets.dart';
+import '../../../../data/models/cart_item_model.dart';
+import '../../../../data/services/cache/cache_service.dart';
+import '../../../../data/services/cart_service.dart';
 
 class CartItem {
   final String id;
+  final String productId;
   final String title;
   final String subtitle;
   final String priceString;
   final double price;
-  int quantity;
   final String image;
+  int quantity;
 
   CartItem({
     required this.id,
+    required this.productId,
     required this.title,
     required this.subtitle,
     required this.priceString,
     required this.price,
-    this.quantity = 1,
+    required this.quantity,
     required this.image,
   });
+
+  factory CartItem.fromModel(CartItemModel model) {
+    return CartItem(
+      id: model.id,
+      productId: model.productId,
+      title: model.title,
+      subtitle: model.subtitle,
+      priceString: '\$${model.price}',
+      price: model.price.toDouble(),
+      quantity: model.quantity,
+      image: model.image,
+    );
+  }
 }
 
 class CartProvider extends ChangeNotifier {
-  final List<CartItem> _items = [
-    CartItem(
-      id: '1',
-      title: 'New Year Special Shoe',
-      subtitle: 'Color: Red, Size: X',
-      priceString: '\$100',
-      price: 100.0,
-      quantity: 1,
-      image: AppAssets.shoe,
-    ),
-  ];
+  final CartService _cartService = CartService();
+  List<CartItem> _items = [];
 
-  List<CartItem> get items => _items;
+  List<CartItem> get items => List.unmodifiable(_items);
 
-  double get totalPrice {
-    double total = 0;
-    for (var item in _items) {
-      total += item.price * item.quantity;
-    }
-    return total;
-  }
+  bool _isLoading = false;
+  bool get isLoading => _isLoading;
 
-  void addItem({
-    required String title,
-    required String subtitle,
-    required String priceString,
-    required double price,
-    int quantity = 1,
-    required String image,
-  }) {
-    final existingIndex = _items.indexWhere(
-      (item) => item.title == title && item.subtitle == subtitle,
-    );
-    if (existingIndex >= 0) {
-      _items[existingIndex].quantity += quantity;
-    } else {
-      _items.add(
-        CartItem(
-          id: DateTime.now().toIso8601String(),
-          title: title,
-          subtitle: subtitle,
-          priceString: priceString,
-          price: price,
-          quantity: quantity,
-          image: image,
-        ),
-      );
-    }
+  bool _hasLoaded = false;
+  bool get hasLoaded => _hasLoaded;
+
+  bool _isMutating = false;
+  bool get isMutating => _isMutating;
+
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
+
+  double get totalPrice =>
+      _items.fold(0, (total, item) => total + item.price * item.quantity);
+
+  void clearRemoteItems() {
+    _items = [];
+    _hasLoaded = false;
     notifyListeners();
   }
 
-  void incrementQuantity(int index) {
-    _items[index].quantity++;
+  Future<bool> fetchCart() async {
+    if (!await CacheService.hasToken()) {
+      _errorMessage = null;
+      _hasLoaded = false;
+      notifyListeners();
+      return false;
+    }
+    _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
-  }
-
-  void decrementQuantity(int index) {
-    if (_items[index].quantity > 1) {
-      _items[index].quantity--;
+    try {
+      final remoteItems = await _cartService.getCart();
+      _items = remoteItems.map(CartItem.fromModel).toList();
+      _hasLoaded = true;
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _hasLoaded = true;
+      return false;
+    } finally {
+      _isLoading = false;
       notifyListeners();
     }
   }
 
-  void removeItem(int index) {
-    _items.removeAt(index);
+  Future<bool> addProduct({
+    required String productId,
+    required String title,
+    required String subtitle,
+    required String priceString,
+    required double price,
+    required int quantity,
+    required String image,
+    String? color,
+    String? size,
+  }) async {
+    if (productId.isEmpty) {
+      _errorMessage = 'This demo product cannot be added to your cart.';
+      notifyListeners();
+      return false;
+    }
+    if (!await CacheService.hasToken()) {
+      _errorMessage = 'Sign in to add products to your cart.';
+      notifyListeners();
+      return false;
+    }
+
+    return _mutate(() async {
+      await _cartService.addToCart(
+        productId: productId,
+        quantity: quantity,
+        color: color,
+        size: size,
+      );
+      await _refreshAfterMutation();
+    });
+  }
+
+  Future<bool> updateQuantity(CartItem item, int quantity) async {
+    if (quantity < 1) return false;
+    return _mutate(() async {
+      await _cartService.updateQuantity(item.id, quantity);
+      await _refreshAfterMutation();
+    });
+  }
+
+  Future<bool> removeItem(CartItem item) async {
+    return _mutate(() async {
+      await _cartService.removeItem(item.id);
+      await _refreshAfterMutation();
+    });
+  }
+
+  Future<bool> _mutate(Future<void> Function() action) async {
+    if (_isMutating) return false;
+    _isMutating = true;
+    _errorMessage = null;
     notifyListeners();
+    try {
+      await action();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      return false;
+    } finally {
+      _isMutating = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> _refreshAfterMutation() async {
+    final remoteItems = await _cartService.getCart();
+    _items = remoteItems.map(CartItem.fromModel).toList();
+    _hasLoaded = true;
   }
 }

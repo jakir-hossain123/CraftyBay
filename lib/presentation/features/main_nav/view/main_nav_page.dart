@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/app_colors.dart';
 import '../../../../core/app_strings.dart';
+import '../../../core/auth_navigation.dart';
 import '../../cart/view/cart_page.dart';
 import '../../categories/viewmodel/category_provider.dart';
 import '../../home/view/home_page.dart';
@@ -32,7 +33,13 @@ class _MainNavPageState extends State<MainNavPage> {
       body: _pages[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
-        onTap: (index) => setState(() => _currentIndex = index),
+        onTap: (index) async {
+          if (index == 2 || index == 3) {
+            final authenticated = await AuthNavigation.requireLogin(context);
+            if (!authenticated || !mounted) return;
+          }
+          if (mounted) setState(() => _currentIndex = index);
+        },
         type: BottomNavigationBarType.fixed,
         selectedItemColor: AppColors.primary,
         unselectedItemColor: AppColors.textSecondary,

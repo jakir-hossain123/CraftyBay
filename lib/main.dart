@@ -1,6 +1,10 @@
 import 'package:crafty_bay/core/app_colors.dart';
 import 'package:crafty_bay/core/app_strings.dart';
+import 'package:crafty_bay/core/app_navigator.dart';
+import 'package:crafty_bay/data/services/cache/cache_service.dart';
+import 'package:crafty_bay/data/services/network/session_expired.dart';
 import 'package:crafty_bay/presentation/features/auth/viewmodel/auth_provider.dart';
+import 'package:crafty_bay/presentation/features/auth/auth_redirect.dart';
 import 'package:crafty_bay/presentation/features/cart/viewmodel/cart_provider.dart';
 import 'package:crafty_bay/presentation/features/categories/viewmodel/category_provider.dart';
 import 'package:crafty_bay/presentation/features/home/viewmodel/brand_provider.dart';
@@ -18,7 +22,17 @@ import 'package:provider/provider.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
+  await CacheService.init();
+  SessionExpired.onExpired = _handleUnauthorized;
   runApp(const CraftyBay());
+}
+
+Future<void> _handleUnauthorized() async {
+  final context = AppNavigator.key.currentContext;
+  context?.read<AuthProvider>().clearSession();
+  context?.read<CartProvider>().clearRemoteItems();
+  context?.read<WishlistProvider>().clearRemoteItems();
+  AuthRedirect.toLogin();
 }
 
 class CraftyBay extends StatelessWidget {
@@ -39,6 +53,7 @@ class CraftyBay extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: MaterialApp(
+        navigatorKey: AppNavigator.key,
         debugShowCheckedModeBanner: false,
         title: AppStrings.appName,
         theme: ThemeData(

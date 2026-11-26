@@ -56,7 +56,6 @@ class HomeProductSection extends StatelessWidget {
                         ? NetworkImage(item.image)
                         : const AssetImage(AppAssets.shoe) as ImageProvider,
                     isWished: false,
-                    onWishTap: () {},
                   );
                 } else {
                   final product = item as Map<String, dynamic>;
@@ -66,7 +65,7 @@ class HomeProductSection extends StatelessWidget {
                     rating: product['rating'],
                     image: AssetImage(product['image']),
                     isWished: false,
-                    onWishTap: () {},
+                    allowLocalWishlist: true,
                     onTap: () => _openDummyProductDetails(context, product),
                   );
                 }
@@ -106,7 +105,6 @@ class HomeProductSection extends StatelessWidget {
                   ? NetworkImage(item.image)
                   : const AssetImage(AppAssets.shoe) as ImageProvider,
               isWished: false,
-              onWishTap: () {},
             ),
           );
         } else {
@@ -119,7 +117,7 @@ class HomeProductSection extends StatelessWidget {
               rating: product['rating'],
               image: AssetImage(product['image']),
               isWished: false,
-              onWishTap: () {},
+              allowLocalWishlist: true,
               onTap: () => _openDummyProductDetails(context, product),
             ),
           );

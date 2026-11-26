@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/app_assets.dart';
 import '../../../../core/app_colors.dart';
+import '../../../../data/services/cache/cache_service.dart';
 import '../../../../domain/entities/product_details.dart';
+import '../../../core/auth_navigation.dart';
 import '../../../core/widgets/cart_bottom_bar.dart';
-import '../../cart/model/cart_manager.dart';
+import '../../cart/viewmodel/cart_provider.dart';
+import '../../wishlist/viewmodel/wishlist_provider.dart';
 import '../viewmodel/product_details_provider.dart';
 import '../widget/product_color_selector.dart';
 import '../widget/product_description_section.dart';
@@ -41,13 +44,30 @@ class _ProductDetailsContentState extends State<_ProductDetailsContent> {
   int _selectedColorIndex = 0;
   int _selectedSizeIndex = 0;
   int _quantity = 1;
-  bool _isWished = false;
 
   String _formatPrice(num price) => '\$$price';
 
   @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadWishlistForSignedInUser();
+    });
+  }
+
+  Future<void> _loadWishlistForSignedInUser() async {
+    if (!await CacheService.hasToken() || !mounted) return;
+    final wishlistProvider = context.read<WishlistProvider>();
+    if (!wishlistProvider.hasLoaded) {
+      await wishlistProvider.fetchWishlist();
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final provider = context.watch<ProductDetailsProvider>();
+    final wishlistProvider = context.watch<WishlistProvider>();
+    final cartProvider = context.watch<CartProvider>();
     final product = provider.product;
 
     return Scaffold(
@@ -68,14 +88,14 @@ class _ProductDetailsContentState extends State<_ProductDetailsContent> {
       ),
       body: product == null
           ? _buildLoadingOrError(provider)
-          : _buildProductDetails(product),
+          : _buildProductDetails(product, wishlistProvider),
       bottomNavigationBar: product == null
           ? null
           : CartBottomBar(
               label: product.quantity > 0 ? 'Price' : 'Out of Stock',
               price: _formatPrice(product.currentPrice),
               buttonText: product.quantity > 0 ? 'Add To Cart' : 'Unavailable',
-              onButtonPressed: product.quantity > 0
+              onButtonPressed: product.quantity > 0 && !cartProvider.isMutating
                   ? () => _addToCart(product)
                   : null,
             ),
@@ -112,7 +132,10 @@ class _ProductDetailsContentState extends State<_ProductDetailsContent> {
     );
   }
 
-  Widget _buildProductDetails(ProductDetails product) {
+  Widget _buildProductDetails(
+    ProductDetails product,
+    WishlistProvider wishlistProvider,
+  ) {
     final colorIndex = product.colors.isEmpty
         ? 0
         : _selectedColorIndex.clamp(0, product.colors.length - 1).toInt();
@@ -144,8 +167,8 @@ class _ProductDetailsContentState extends State<_ProductDetailsContent> {
                   onDecrement: () => setState(() {
                     if (_quantity > 1) _quantity--;
                   }),
-                  isWished: _isWished,
-                  onWishlistTap: () => setState(() => _isWished = !_isWished),
+                  isWished: wishlistProvider.isWished(product.id),
+                  onWishlistTap: () => _toggleWishlist(product),
                 ),
                 const SizedBox(height: 12),
                 _buildPrice(product),
@@ -205,7 +228,9 @@ class _ProductDetailsContentState extends State<_ProductDetailsContent> {
     );
   }
 
-  void _addToCart(ProductDetails product) {
+  Future<void> _addToCart(ProductDetails product) async {
+    if (!await AuthNavigation.requireLogin(context)) return;
+    if (!mounted) return;
     final color = product.colors.isEmpty
         ? null
         : product.colors[_selectedColorIndex
@@ -221,19 +246,53 @@ class _ProductDetailsContentState extends State<_ProductDetailsContent> {
       if (size != null) 'Size: $size',
     ];
 
-    CartManager().addItem(
+    final success = await context.read<CartProvider>().addProduct(
+      productId: product.id,
       title: product.title,
       subtitle: selectedOptions.join(', '),
       priceString: _formatPrice(product.currentPrice),
       price: product.currentPrice.toDouble(),
       quantity: _quantity,
       image: product.photos.isNotEmpty ? product.photos.first : AppAssets.shoe,
+      color: color,
+      size: size,
     );
+    if (!mounted) return;
+    if (!success) {
+      _showRequestError(context.read<CartProvider>().errorMessage);
+      return;
+    }
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Added to cart successfully!'),
         duration: Duration(seconds: 2),
       ),
+    );
+  }
+
+  Future<void> _toggleWishlist(ProductDetails product) async {
+    if (!await AuthNavigation.requireLogin(context)) return;
+    if (!mounted) return;
+    final success = await context.read<WishlistProvider>().toggleProduct(
+      productId: product.id,
+      title: product.title,
+      price: _formatPrice(product.currentPrice),
+      rating: 0,
+      image: product.photos.isNotEmpty ? product.photos.first : AppAssets.shoe,
+    );
+    if (!mounted) return;
+    if (!success) {
+      _showRequestError(context.read<WishlistProvider>().errorMessage);
+      return;
+    }
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Wishlist updated.')));
+  }
+
+  void _showRequestError(String? message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message ?? 'Request failed. Please try again.')),
     );
   }
 }
