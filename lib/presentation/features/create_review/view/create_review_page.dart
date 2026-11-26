@@ -1,6 +1,8 @@
 import 'package:crafty_bay/core/app_colors.dart';
 import 'package:crafty_bay/core/app_strings.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../reviews/viewmodel/review_provider.dart';
 
 class CreateReviewPage extends StatefulWidget {
   const CreateReviewPage({super.key});
@@ -31,6 +33,11 @@ class _CreateReviewPageState extends State<CreateReviewPage> {
 
   void _onSubmit() {
     if (!_formKey.currentState!.validate()) return;
+    context.read<ReviewProvider>().addReview(
+          _firstNameController.text.trim(),
+          _lastNameController.text.trim(),
+          _reviewController.text.trim(),
+        );
     Navigator.pop(context);
   }
 

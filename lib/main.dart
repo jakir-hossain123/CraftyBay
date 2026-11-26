@@ -1,11 +1,19 @@
 import 'package:crafty_bay/core/app_colors.dart';
 import 'package:crafty_bay/core/app_strings.dart';
-import 'package:crafty_bay/presentation/features/cart/view/cart_page.dart';
+import 'package:crafty_bay/presentation/features/auth/viewmodel/auth_provider.dart';
+import 'package:crafty_bay/presentation/features/cart/viewmodel/cart_provider.dart';
+import 'package:crafty_bay/presentation/features/home/viewmodel/home_provider.dart';
+import 'package:crafty_bay/presentation/features/reviews/viewmodel/review_provider.dart';
 import 'package:crafty_bay/presentation/features/splash/view/splash_page.dart';
+import 'package:crafty_bay/presentation/features/wishlist/viewmodel/wishlist_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
   runApp(const CraftyBay());
 }
 
@@ -14,60 +22,68 @@ class CraftyBay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: AppStrings.appName,
-      theme: ThemeData(
-        scaffoldBackgroundColor: AppColors.background,
-        textTheme: GoogleFonts.poppinsTextTheme(
-          ThemeData.light().textTheme,
-        ),
-        appBarTheme: const AppBarTheme(
-          backgroundColor: AppColors.background,
-          foregroundColor: AppColors.textPrimary,
-          elevation: 0,
-          iconTheme: IconThemeData(
-            color: AppColors.textPrimary,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => WishlistProvider()),
+        ChangeNotifierProvider(create: (_) => ReviewProvider()),
+        ChangeNotifierProvider(create: (_) => HomeProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: AppStrings.appName,
+        theme: ThemeData(
+          scaffoldBackgroundColor: AppColors.background,
+          textTheme: GoogleFonts.poppinsTextTheme(
+            ThemeData.light().textTheme,
           ),
-        ),
-        elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.primary,
-            foregroundColor: AppColors.textOnPrimary,
-            minimumSize: const  Size(0, 44),
-
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
+          appBarTheme: const AppBarTheme(
+            backgroundColor: AppColors.background,
+            foregroundColor: AppColors.textPrimary,
+            elevation: 0,
+            iconTheme: IconThemeData(
+              color: AppColors.textPrimary,
             ),
           ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: AppColors.textOnPrimary,
+              minimumSize: const Size(0, 44),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+          ),
+          inputDecorationTheme: InputDecorationTheme(
+            filled: true,
+            fillColor: AppColors.background,
+            hintStyle: const TextStyle(color: AppColors.textHint),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: AppColors.border),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: AppColors.primary),
+            ),
+            errorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: AppColors.error),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: const BorderSide(color: AppColors.error),
+            ),
+          ),
+          textSelectionTheme: const TextSelectionThemeData(
+            cursorColor: Colors.black,
+            selectionHandleColor: Colors.black,
+          ),
         ),
-        inputDecorationTheme: InputDecorationTheme(
-          filled: true,
-          fillColor: AppColors.background,
-          hintStyle: const TextStyle(color: AppColors.textHint),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: AppColors.border),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: AppColors.primary),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: AppColors.error),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-            borderSide: const BorderSide(color: AppColors.error),
-          ),
-        ),
-        textSelectionTheme: const TextSelectionThemeData(
-          cursorColor: Colors.black,
-          selectionHandleColor: Colors.black,
-        ),
+        home: const SplashPage(),
       ),
-      home: const SplashPage(),
     );
   }
 }

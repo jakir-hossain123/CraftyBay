@@ -1,39 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/app_colors.dart';
 import '../../../core/widgets/cart_bottom_bar.dart';
 import '../../../core/widgets/cart_item_card.dart';
-import '../model/cart_manager.dart';
+import '../viewmodel/cart_provider.dart';
 
-class CartPage extends StatefulWidget {
+class CartPage extends StatelessWidget {
   const CartPage({super.key});
 
   @override
-  State<CartPage> createState() => _CartPageState();
-}
-
-class _CartPageState extends State<CartPage> {
-  final CartManager _cartManager = CartManager();
-
-  @override
-  void initState() {
-    super.initState();
-    _cartManager.addListener(_onCartChanged);
-  }
-
-  @override
-  void dispose() {
-    _cartManager.removeListener(_onCartChanged);
-    super.dispose();
-  }
-
-  void _onCartChanged() {
-    setState(() {});
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final items = _cartManager.items;
-    final totalFormatted = '\$${_cartManager.totalPrice.toStringAsFixed(2)}';
+    final cartProvider = context.watch<CartProvider>();
+    final items = cartProvider.items;
+    final totalFormatted = '\$${cartProvider.totalPrice.toStringAsFixed(2)}';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -69,9 +48,9 @@ class _CartPageState extends State<CartPage> {
                   subtitle: item.subtitle,
                   price: item.priceString,
                   quantity: item.quantity,
-                  onIncrement: () => _cartManager.incrementQuantity(index),
-                  onDecrement: () => _cartManager.decrementQuantity(index),
-                  onDelete: () => _cartManager.removeItem(index),
+                  onIncrement: () => cartProvider.incrementQuantity(index),
+                  onDecrement: () => cartProvider.decrementQuantity(index),
+                  onDelete: () => cartProvider.removeItem(index),
                 );
               },
             ),

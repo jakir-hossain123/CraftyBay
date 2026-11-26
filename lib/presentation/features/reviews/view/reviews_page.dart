@@ -1,22 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../../../core/app_colors.dart';
 import '../../../core/widgets/review_bottom_bar.dart';
 import '../../../core/widgets/review_item_card.dart';
 import '../../create_review/view/create_review_page.dart';
+import '../viewmodel/review_provider.dart';
 
 class ReviewsPage extends StatelessWidget {
   const ReviewsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final reviews = List.generate(
-      5,
-      (index) => {
-        'name': 'Rabbil Hasan',
-        'review':
-            'Reference site about Lorem Ipsum, giving information on its origins, as well as a random Lipsum generator Reference site about Lorem Ipsum, giving information on its origins, as well as a random Lipsum generator',
-      },
-    );
+    final reviewProvider = context.watch<ReviewProvider>();
+    final reviews = reviewProvider.reviews;
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -40,8 +36,8 @@ class ReviewsPage extends StatelessWidget {
         itemBuilder: (context, index) {
           final review = reviews[index];
           return ReviewItemCard(
-            name: review['name']!,
-            reviewText: review['review']!,
+            name: review.name,
+            reviewText: review.reviewText,
           );
         },
       ),

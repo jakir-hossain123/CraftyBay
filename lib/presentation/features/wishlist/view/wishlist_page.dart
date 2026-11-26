@@ -1,24 +1,37 @@
 import 'package:flutter/material.dart';
-import '../../../../core/app_assets.dart';
+import 'package:provider/provider.dart';
 import '../../../core/widgets/product_card.dart';
 import '../../../core/widgets/product_grid_page.dart';
+import '../viewmodel/wishlist_provider.dart';
 
 class WishlistPage extends StatelessWidget {
   const WishlistPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final wishlistProvider = context.watch<WishlistProvider>();
+    final wishlist = wishlistProvider.wishlist;
+
     return ProductGridPage(
       title: 'Wish List',
-      itemCount: 6,
+      itemCount: wishlist.length,
       itemBuilder: (context, index) {
+        final item = wishlist[index];
         return ProductCard(
-          title: 'New Year Special Shoe 30',
-          price: '\$100',
-          rating: 4.8,
-          image: const AssetImage(AppAssets.shoe),
+          title: item.title,
+          price: item.price,
+          rating: item.rating,
+          image: AssetImage(item.image),
           isWished: true,
-          onWishTap: () {},
+          onWishTap: () {
+            wishlistProvider.toggleWishlist(
+              id: item.id,
+              title: item.title,
+              price: item.price,
+              rating: item.rating,
+              image: item.image,
+            );
+          },
         );
       },
     );

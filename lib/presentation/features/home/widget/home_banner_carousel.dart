@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import '../../../../core/app_assets.dart';
 import '../../../../core/app_colors.dart';
+import '../../../../data/models/slide_model.dart';
 
 class HomeBannerCarousel extends StatefulWidget {
-  const HomeBannerCarousel({super.key});
+  final List<SlideModel> slides;
+
+  const HomeBannerCarousel({
+    super.key,
+    this.slides = const [],
+  });
 
   @override
   State<HomeBannerCarousel> createState() => _HomeBannerCarouselState();
@@ -13,25 +19,6 @@ class _HomeBannerCarouselState extends State<HomeBannerCarousel> {
   final PageController _pageController = PageController(viewportFraction: 0.92);
   int _currentIndex = 0;
 
-  final List<Map<String, String>> _banners = [
-    {
-      'title': 'Happy New Year\nSpecial Deal\nSave 30%',
-      'image': AppAssets.shoe,
-    },
-    {
-      'title': 'Spring Collection\nNew Arrivals\nUp to 50% Off',
-      'image': AppAssets.shoe,
-    },
-    {
-      'title': 'Exclusive Offer\nLimited Time\nFree Shipping',
-      'image': AppAssets.shoe,
-    },
-    {
-      'title': 'Flash Sale\nBest Sellers\nGrab Yours Now',
-      'image': AppAssets.shoe,
-    },
-  ];
-
   @override
   void dispose() {
     _pageController.dispose();
@@ -40,20 +27,39 @@ class _HomeBannerCarouselState extends State<HomeBannerCarousel> {
 
   @override
   Widget build(BuildContext context) {
+    final bannerList = widget.slides.isEmpty
+        ? [
+            {
+              'title': 'Happy New Year\nSpecial Deal\nSave 30%',
+              'image': AppAssets.shoe,
+              'isNetwork': false,
+            },
+            {
+              'title': 'Spring Collection\nNew Arrivals\nUp to 50% Off',
+              'image': AppAssets.shoe,
+              'isNetwork': false,
+            },
+          ]
+        : widget.slides;
+
     return Column(
       children: [
         SizedBox(
           height: 150,
           child: PageView.builder(
             controller: _pageController,
-            itemCount: _banners.length,
+            itemCount: bannerList.length,
             onPageChanged: (index) {
               setState(() {
                 _currentIndex = index;
               });
             },
             itemBuilder: (context, index) {
-              final banner = _banners[index];
+              final banner = bannerList[index];
+              final title = banner is SlideModel ? banner.description : (banner as Map)['title'];
+              final imageUrl = banner is SlideModel ? banner.photoUrl : (banner as Map)['image'];
+              final isNetwork = banner is SlideModel && imageUrl.isNotEmpty;
+
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 4.0),
                 child: Container(
@@ -67,10 +73,16 @@ class _HomeBannerCarouselState extends State<HomeBannerCarousel> {
                         flex: 4,
                         child: Padding(
                           padding: const EdgeInsets.all(10.0),
-                          child: Image.asset(
-                            banner['image']!,
-                            fit: BoxFit.contain,
-                          ),
+                          child: isNetwork
+                              ? Image.network(
+                                  imageUrl,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) => Image.asset(AppAssets.shoe, fit: BoxFit.contain),
+                                )
+                              : Image.asset(
+                                  imageUrl,
+                                  fit: BoxFit.contain,
+                                ),
                         ),
                       ),
                       Expanded(
@@ -82,12 +94,14 @@ class _HomeBannerCarouselState extends State<HomeBannerCarousel> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                banner['title']!,
+                                title,
+                                maxLines: 3,
+                                overflow: TextOverflow.ellipsis,
                                 style: const TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
-                                  height: 1.6,
+                                  height: 1.4,
                                 ),
                               ),
                               const SizedBox(height: 8),
@@ -127,7 +141,7 @@ class _HomeBannerCarouselState extends State<HomeBannerCarousel> {
         const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(_banners.length, (index) {
+          children: List.generate(bannerList.length, (index) {
             final isActive = index == _currentIndex;
             return GestureDetector(
               onTap: () {
